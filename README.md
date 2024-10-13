@@ -3,11 +3,11 @@
 Bird monitoring agent for SNMP AgentX protocol. Compatible with net-snmp.
 
 Limited BGP4-MIB and ipv4 only peers, supported oids:
-* oidBgpLocalAs
-* oidBgpPeerState
-* oidBgpPeerRemoteAddr
-* oidBgpPeerFsmEstablishedTime
-* oidBgpIdentifier
+* bgpLocalAs
+* bgpPeerState
+* bgpPeerRemoteAddr
+* bgpPeerFsmEstablishedTime
+* bgpIdentifier
 
 ## Installation on Keenetic router via opkg
 
