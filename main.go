@@ -18,6 +18,9 @@ var CLI struct {
 func main() {
 	kong.Parse(&CLI)
 
+	zone, offset := time.Now().Zone()
+	log.Printf("[DEBUG] local timezone is %s (%+.02fh)", zone, float32(offset)/60/60)
+
 	snmpclient, err := agentx.Dial("unix", CLI.SnmpMasterSock)
 	if err != nil {
 		log.Fatalf("Error: %s", err)

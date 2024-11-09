@@ -48,6 +48,8 @@ Install bird2snmp (select proper version and binary from releases)
     DESC=$PROCS
     PATH=/opt/sbin:/opt/bin:/opt/usr/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
+    export TZ=/opt/etc/localtime
+
     . /opt/etc/init.d/rc.func
     EOF
     chmod +x /opt/etc/init.d/S81bird2snmp

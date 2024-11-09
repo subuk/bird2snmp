@@ -138,7 +138,7 @@ func ParseShowProtocolsAll(in string) []ProtocolBGPStatus {
 			if items[3] == "up" {
 				proto.Up = true
 			}
-			if t, err := time.Parse(time.DateTime, items[4]+" "+items[5]); err == nil {
+			if t, err := time.ParseInLocation(time.DateTime, items[4]+" "+items[5], time.Local); err == nil {
 				proto.Since = t
 			}
 			continue
