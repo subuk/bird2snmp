@@ -122,6 +122,9 @@ func ParseShowProtocolsAll(in string) []ProtocolBGPStatus {
 				}
 				items = append(items, strings.TrimSpace(item))
 			}
+			if len(items) < 6 {
+				continue
+			}
 			if items[1] != "BGP" {
 				continue
 			}
@@ -177,6 +180,9 @@ func ParseShowProtocolsAll(in string) []ProtocolBGPStatus {
 				channelstat := ProtocolBGPChannel{Name: "ipv4"}
 				for _, statpart := range routestatsLineParts {
 					statpartItems := strings.SplitN(strings.TrimSpace(statpart), " ", 2)
+					if len(statpartItems) != 2 {
+						continue
+					}
 					statValueRaw := statpartItems[0]
 					statName := statpartItems[1]
 					statValue, err := strconv.Atoi(statValueRaw)
@@ -197,9 +203,10 @@ func ParseShowProtocolsAll(in string) []ProtocolBGPStatus {
 				proto.Channels[channelstat.Name] = channelstat
 			}
 		}
-
 	}
-	protocols = append(protocols, *proto)
+	if proto != nil {
+		protocols = append(protocols, *proto)
+	}
 	sort.Slice(protocols, func(i int, j int) bool {
 		ia := big.NewInt(0)
 		ia.SetBytes(protocols[i].NeighborAddress.To16())

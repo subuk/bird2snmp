@@ -2,6 +2,9 @@ package main
 
 import (
 	"log"
+	"os"
+	"os/signal"
+	"syscall"
 	"time"
 
 	"github.com/alecthomas/kong"
@@ -23,24 +26,38 @@ func main() {
 
 	snmpclient, err := agentx.Dial("unix", CLI.SnmpMasterSock)
 	if err != nil {
-		log.Fatalf("Error: %s", err)
+		log.Fatalf("Error connecting to SNMP master: %v", err)
 	}
 	snmpclient.Timeout = 1 * time.Minute
 	snmpclient.ReconnectInterval = 1 * time.Second
 
 	handler, err := NewBirdBGPHandler(CLI.BirdSock)
 	if err != nil {
-		log.Fatalf("Error: %s", err)
-		return
+		log.Fatalf("Error initializing BGP handler: %v", err)
 	}
 
 	if err := handler.Register(CLI.SnmpPriority, snmpclient); err != nil {
-		log.Fatalf("Error: %s", err)
-		return
+		log.Fatalf("Error registering SNMP handler: %v", err)
 	}
+
 	log.Printf("[INFO] agentx started, waiting for requests")
+
+	// Set up signal handling for graceful shutdown
+	sigChan := make(chan os.Signal, 1)
+	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
+
 	ticker := time.NewTicker(CLI.BirdRefreshInterval)
-	for range ticker.C {
-		handler.Refresh()
+	defer ticker.Stop()
+
+	for {
+		select {
+		case <-ticker.C:
+			if err := handler.Refresh(); err != nil {
+				log.Printf("[ERROR] Failed to refresh BGP data: %v", err)
+			}
+		case sig := <-sigChan:
+			log.Printf("[INFO] Received signal %v, shutting down", sig)
+			return
+		}
 	}
 }
